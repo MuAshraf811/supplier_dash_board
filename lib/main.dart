@@ -3,9 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  try {
+
     await Firebase.initializeApp(
         options: const FirebaseOptions(
             apiKey: "AIzaSyCOE-Q2C8rwIRogWxRZgHBWhKAvt-a0N8o",
@@ -16,9 +15,8 @@ void main() async {
             messagingSenderId: "820970179759",
             appId: "1:820970179759:web:0a140986f890403db9185a",
             measurementId: "G-B9NBMBZ3ML"));
-  } catch (e) {
-    debugPrint('Firebase Initialization Error: $e');
-  }
+ 
+  WidgetsFlutterBinding.ensureInitialized();
 
   runApp(const DashBoard());
 }

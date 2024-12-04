@@ -1,3 +1,4 @@
+import 'package:dash_board/core/widgets/snack_bar.dart';
 import 'package:dash_board/core/widgets/spacers.dart';
 import 'package:dash_board/home/presentation/controller/home_cubit.dart';
 import 'package:dash_board/home/presentation/widget/custom_shimmer.dart';
@@ -10,17 +11,29 @@ class OrdersView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HomeCubit, HomeState>(
+    return BlocConsumer<HomeCubit, HomeState>( 
+      listenWhen: (previous, current) => current is AcceptedOrderErrorState|| current is AcceptedOrderSuccessfullState, 
+
       buildWhen: (previous, current) =>
           current is FetchingClientOrdersErrorState ||
           current is FetchingClientOrdersState ||
-          current is FetchingClientOrdersSuccessState,
+          current is FetchingClientOrdersSuccessState, 
+          listener: (context , state){ 
+            if(state is AcceptedOrderSuccessfullState){ 
+              showCustomSnackBar(context, "Order Accepted SuccessFully", Colors.green);
+            } else  if(state is AcceptedOrderSuccessfullState){ 
+              showCustomSnackBar(context, "Something went wrong", Colors.red);
+            } 
+          },
       builder: (context, state) {
         if (state is FetchingClientOrdersState) {
           return Expanded(
             child: GridView.builder(
-              gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, childAspectRatio: 2 / 1.5, crossAxisSpacing: 16.h, mainAxisSpacing: 18.h ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 2 / 1.5,
+                  crossAxisSpacing: 16.h,
+                  mainAxisSpacing: 18.h),
               itemBuilder: (context, index) => const ShimmerUserCard(),
             ),
           );
@@ -49,7 +62,7 @@ class OrdersView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "${ context.read<HomeCubit>().allOrders[index].category}\n${ context.read<HomeCubit>().allOrders[index].orderType}",
+                        "${context.read<HomeCubit>().allOrders[index].category}\n${context.read<HomeCubit>().allOrders[index].orderType}",
                         style: const TextStyle(
                             fontSize: 18,
                             color: Colors.black,
@@ -58,26 +71,44 @@ class OrdersView extends StatelessWidget {
                       InkWell(
                         onTap: () {
                           context.read<HomeCubit>().deletSpacificOrder(
-                              id: context.read<HomeCubit>().allOrders[index].orderId);
+                              id: context
+                                  .read<HomeCubit>()
+                                  .allOrders[index]
+                                  .orderId);
                         },
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
+                        child: const Column(
+                          children: [
+                             Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ), 
+                             VerticalSpacer(space: 10), 
+                            Text("Delete", style: TextStyle(color: Colors.green),)
+                          ],
                         ),
-                      ), 
-                       InkWell(
+                      ),
+                      InkWell(
                         onTap: () {
-                          context.read<HomeCubit>().acceptSpacificOrder(id: context.read<HomeCubit>().allOrders[index].orderId);
+                          context.read<HomeCubit>().acceptSpacificOrder(
+                              order: context
+                                  .read<HomeCubit>()
+                                  .allOrders[index]
+                                  );
                         },
-                        child: const Icon(
-                          Icons.verified_sharp,
-                          color: Colors.green,
+                        child: const Column(
+                          children: [
+                             Icon(
+                              Icons.verified_sharp,
+                              color: Colors.green,
+                            ), 
+                             VerticalSpacer(space: 10), 
+                            Text("Accept", style: TextStyle(color: Colors.green),)
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  const VerticalSpacer(space: 8), 
-                   
+                  const VerticalSpacer(space: 8),
                   Text(
                     context.read<HomeCubit>().allOrders[index].details,
                     style: const TextStyle(fontSize: 14, color: Colors.blue),
@@ -88,7 +119,7 @@ class OrdersView extends StatelessWidget {
                     style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   const VerticalSpacer(space: 8),
-                  Align( 
+                  Align(
                     alignment: Alignment.centerRight,
                     child: Text(
                       context.read<HomeCubit>().allOrders[index].date,

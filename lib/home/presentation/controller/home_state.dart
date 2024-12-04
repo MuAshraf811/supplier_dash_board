@@ -21,4 +21,8 @@ final class FetchingClientOrdersErrorState extends HomeState{
 
   FetchingClientOrdersErrorState({required this.error}); 
 
-} 
+}  
+
+
+final class AcceptedOrderSuccessfullState extends HomeState{} 
+final class AcceptedOrderErrorState extends HomeState{}
