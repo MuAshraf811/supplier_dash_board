@@ -1,9 +1,12 @@
 import 'package:dash_board/core/widgets/spacers.dart';
 import 'package:dash_board/home/presentation/controller/cubit/chat_cubit.dart';
+import 'package:dash_board/home/presentation/widget/chat_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+
+import '../../model/message_modl.dart';
 
 class ChatView extends StatelessWidget {
   const ChatView({super.key});
@@ -24,28 +27,29 @@ class ChatView extends StatelessWidget {
               builder: (context, state) {
                 if (state is FetchingAllChatsSuccessState) {
                   return ListView.separated(
-                    shrinkWrap: true, // Ensures constraints are respected
-                    itemCount:
-                        context.read<ChatCubit>().allChatsInDataBase.length,
+                    padding: EdgeInsets.only(top: 16.h),
+                    itemCount: context.read<ChatCubit>().allUsers.length,
                     separatorBuilder: (context, index) => Divider(
                       thickness: 1.h,
                       color: Colors.grey,
+                      height: 32.h,
                       indent: 12.h,
                       endIndent: 12.h,
                     ),
                     itemBuilder: (context, index) => ChatItem(
-                        name: context
-                            .read<ChatCubit>()
-                            .allChatsInDataBase[index]
-                            .userFirstName,
-                        email: context
-                            .read<ChatCubit>()
-                            .allChatsInDataBase[index]
-                            .userEmail,
-                        city: context
-                            .read<ChatCubit>()
-                            .allChatsInDataBase[index]
-                            .city,
+                        onTap: () {
+                          context.read<ChatCubit>().userChatId =
+                              context.read<ChatCubit>().allUsers[index].docId;
+                          context.read<ChatCubit>().getAllmessages(
+                              id: context
+                                  .read<ChatCubit>()
+                                  .allUsers[index]
+                                  .docId);
+                        },
+                        name:
+                            "${context.read<ChatCubit>().allUsers[index].first_name} ${context.read<ChatCubit>().allUsers[index].last_name}",
+                        email: context.read<ChatCubit>().allUsers[index].email,
+                        city: context.read<ChatCubit>().allUsers[index].city,
                         isSupplier: true),
                   );
                 }
@@ -73,9 +77,63 @@ class ChatView extends StatelessWidget {
           ),
           Expanded(
             // Constrain the right-side container
-            child: Container(
-              height: 600.h,
-              color: Colors.white,
+            child: Column(
+              children: [
+                const VerticalSpacer(space: 16),
+                BlocBuilder<ChatCubit, ChatState>(
+                  buildWhen: (previous, current) =>
+                      current is FetchingMessagesState ||
+                      current is FetchingMessagesSuccessState,
+                  builder: (context, state) {
+                    if (state is FetchingMessagesSuccessState) {
+                      return StreamBuilder<List<MessageprodModel>>(
+                        stream: context.read<ChatCubit>().getMessagesStream(
+                            context.read<ChatCubit>().userChatId),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator.adaptive(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return const Center(
+                              child: Text('No messages yet.'),
+                            );
+                          }
+
+                          final messages = snapshot.data!;
+                          return Expanded(
+                            child: ListView.builder(
+                              reverse:
+                                  true, // Optional: Display newest messages at the bottom.
+                              itemCount: messages.length,
+                              itemBuilder: (context, index) {
+                                final message = messages[index];
+                                return MessageItem(
+                                  isSender: message.userId == "1",
+                                  message: message.message,
+                                  time: message.time,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    }
+                    return Expanded(
+                        child: Container(
+                      color: Colors.white,
+                    ));
+                  },
+                ),
+                const VerticalSpacer(space: 12),
+                const ChatBottomBar(),
+              ],
             ),
           ),
         ],
@@ -90,15 +148,17 @@ class ChatItem extends StatelessWidget {
       required this.name,
       required this.email,
       required this.city,
-      required this.isSupplier});
+      required this.isSupplier,
+      required this.onTap});
   final String name;
   final String email;
   final String city;
   final bool isSupplier;
+  final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -188,6 +248,63 @@ class ChatShimmer extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class MessageItem extends StatelessWidget {
+  const MessageItem({
+    super.key,
+    required this.isSender,
+    required this.message,
+    required this.time,
+  });
+  final bool isSender;
+  final String message;
+  final String time;
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: !isSender ? Alignment.centerLeft : Alignment.centerRight,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+        margin: EdgeInsets.only(right: 12.w, bottom: 8.h, left: 12.w),
+        width: MediaQuery.sizeOf(context).height / 2,
+        decoration: BoxDecoration(
+          color: isSender ? Colors.blue : Colors.white,
+          border: Border.all(color: isSender ? Colors.blue : Colors.blue),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.r),
+            topRight: Radius.circular(16.r),
+            bottomLeft: Radius.circular(isSender ? 16.r : 0),
+            bottomRight: Radius.circular(isSender ? 0 : 16.r),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message,
+              maxLines: 15,
+              style: TextStyle(
+                fontSize: 16,
+                color: isSender ? Colors.white : Colors.black,
+              ),
+            ),
+            const VerticalSpacer(space: 4),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                time,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isSender ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

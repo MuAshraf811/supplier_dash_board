@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dash_board/core/fcm_handler.dart';
 import 'package:dash_board/home/model/accepted_orders_model.dart';
 import 'package:dash_board/home/model/offers_model.dart';
 import 'package:dash_board/home/model/orders_model.dart';
@@ -129,6 +130,10 @@ class HomeCubit extends Cubit<HomeState> {
           .doc(order.orderId)
           .delete();
       fetchClientOrders();
+      FCMHandler.sendNotification(
+          "fGDlT9IsZk4duMkTF1FDBJ:APA91bHlWJD0Pingyiu9tRdzEd7PL4DD_5UM37IqZzSNooGyM4cCScbMQ66coIsrWy7qfTRPxpegEx-g76OCgZb2MMIKvYy6xP3k2VTzxtbA7ip8qpXlVZk",
+          "Congratulation! accepted Order/Offer",
+          "Your order/offer has been accepted successfully");
       emit(AcceptedOrderSuccessfullState());
     } catch (e) {
       AcceptedOrderErrorState();

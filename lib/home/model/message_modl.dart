@@ -10,9 +10,9 @@ class MessageprodModel {
   });
   factory MessageprodModel.fromJson(Map<String, dynamic> response) {
     return MessageprodModel(
-      message: response["message"],
-      userId: response["userId"],
-      time: response["time"],
+      message: response["message"] ?? "",
+      userId: response["userId"] ?? "",
+      time: response["time"] ?? "",
     );
   }
   Map<String, dynamic> toMap() {

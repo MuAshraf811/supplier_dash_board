@@ -79,6 +79,7 @@ class SideBarWidget extends StatelessWidget {
                         } else if (bar.index == 1) {
                           context.read<HomeCubit>().fetchSuppliers();
                         } else if (bar.index == 2) {
+                          context.read<ChatCubit>().chechkChatIdExistance();
                           context.read<ChatCubit>().getAllChats();
                         } else if (bar.index == 5) {
                           context.read<HomeCubit>().fetchSupplierOffers();
