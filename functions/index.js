@@ -1,48 +1,63 @@
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-
-// Initialize the Firebase Admin SDK
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 admin.initializeApp();
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+// HTTP callable function instead of regular callable
+exports.sendNotification = functions.https.onRequest(async (req, res) => {
+  // Enable CORS
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
 
-
-
-exports.sendNotification = functions.https.onCall(async (data, context) => {
-  const fcmToken = data.fcmToken;  // Device's FCM token to send the notification
-  const title = data.title;        // Title of the notification
-  const body = data.body;          // Body of the notification
-
-  // Check if the fcmToken is valid
-  if (!fcmToken || fcmToken.trim().isEmpty) {
-      return { success: false, error: "FCM token is empty or invalid" };
+  // Handle OPTIONS request for CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
   }
 
-  // Create the message for FCM
-  const message = {
-      token: fcmToken,
-      notification: {
-          title: title,
-          body: body,
-      },
-  };
+  // Ensure POST method
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed');
+    return;
+  }
 
   try {
-      // Send the notification using the Admin SDK
-      const response = await admin.messaging().send(message);
-      return { success: true, response: response };
+    const { token, title, body, data } = req.body;
+
+    // Validate required fields
+    if (!token || !title || !body) {
+      console.error('Missing required fields:', { token, title, body });
+      res.status(400).send('Missing required fields');
+      return;
+    }
+
+    console.log('Attempting to send notification with data:', {
+      token,
+      title,
+      body,
+      data
+    });
+
+    // Create message
+    const message = {
+      token,
+      notification: {
+        title,
+        body,
+      },
+    };
+
+    if (data) {
+      message.data = data;
+    }
+
+    // Send message
+    const response = await admin.messaging().send(message);
+    console.log('Successfully sent message:', response);
+
+    res.status(200).json({ success: true, messageId: response });
   } catch (error) {
-      console.error("Error sending notification:", error);
-      return { success: false, error: error.message };
+    console.error('Error sending notification:', error);
+    res.status(500).json({ error: error.message });
   }
 });
-
-  
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
-
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });

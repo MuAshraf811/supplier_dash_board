@@ -37,112 +37,122 @@ class AcceptedOffersView extends StatelessWidget {
                 crossAxisSpacing: 12.h,
                 mainAxisSpacing: 12.h),
             itemCount: context.read<HomeCubit>().allAcceptedOffers.length,
-            itemBuilder: (context, index) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 16.h),
-              margin: EdgeInsets.only(top: 16.h),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: Colors.blue,
+            itemBuilder: (context, index) => FittedBox(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 10.h),
+                // margin: EdgeInsets.only(top: 16.h),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Offer : ${context.read<HomeCubit>().allAcceptedOffers[index].offerId}\n Order : ${context.read<HomeCubit>().allAcceptedOffers[index].orderNumber}",
-                        style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          context.read<HomeCubit>().deletSpacificOrder(
-                              collection: "accepted_offers",
-                              id: context
-                                  .read<HomeCubit>()
-                                  .allAcceptedOrders[index]
-                                  .orderId);
-                        },
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.delete,
-                              color: Colors.red,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(right: 18.0),
+                            child: Text(
+                              "Offer : ${context.read<HomeCubit>().allAcceptedOffers[index].offerId}\nOrder : ${context.read<HomeCubit>().allAcceptedOffers[index].orderNumber}",
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
                             ),
-                            VerticalSpacer(space: 10),
-                            Text(
-                              "Delete",
-                              style: TextStyle(color: Colors.green),
-                            )
-                          ],
+                          ),
+                          InkWell(
+                            onTap: () {
+                              context.read<HomeCubit>().deletSpacificOrder(
+                                  collection: "accepted_offers",
+                                  id: context
+                                      .read<HomeCubit>()
+                                      .allAcceptedOffers[index]
+                                      .offerId).then((value) {
+                                          context.read<HomeCubit>().fetchClientAcceptedOfferss();
+                                      },);
+
+                            },
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.red,size: 20,
+                                ),
+                                VerticalSpacer(space: 10),
+                                Text(
+                                  "Delete",
+                                  style: TextStyle(color: Colors.green),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const VerticalSpacer(space: 8),
+                      Text(
+                        "Description: ${context
+                            .read<HomeCubit>()
+                            .allAcceptedOffers[index]
+                            .offerDescription}",
+                        style: const TextStyle(fontSize: 14, color: Colors.black),
+                      ),
+                      const VerticalSpacer(space: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          "Date: ${context
+                              .read<HomeCubit>()
+                              .allAcceptedOffers[index]
+                              .offerDate}",
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                       ),
-                    ],
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().allAcceptedOffers[index].offerId,
-                    style: const TextStyle(fontSize: 14, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context
-                        .read<HomeCubit>()
-                        .allAcceptedOffers[index]
-                        .offerDescription,
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      context
-                          .read<HomeCubit>()
-                          .allAcceptedOffers[index]
-                          .offerDate,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ),
-                  const VerticalSpacer(space: 12),
-                  const Text(
-                    "Supplier Information :",
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 12),
-                  Row(
-                    children: [
-                      Text(
-                        " Name : ${context.read<HomeCubit>().allAcceptedOffers[index].supplierName}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
+                      const VerticalSpacer(space: 12),
+                      const Text(
+                        "Supplier Information :",
+                        style: TextStyle(fontSize: 16, color: Colors.blue),
                       ),
-                      const Text("    ||    "),
+                      const VerticalSpacer(space: 8),
                       Text(
-                        "Mobile : ${context.read<HomeCubit>().allAcceptedOffers[index].mobile}",
-                        style: const TextStyle(fontSize: 14, color: Colors.red),
+                        "SupplierId: ${context.read<HomeCubit>().allAcceptedOffers[index].supplierDataId}",
+                        style: const TextStyle(fontSize: 14, color: Colors.blue),
+                      ),
+                      const VerticalSpacer(space: 12),
+                      Row(
+                        children: [
+                          Text(
+                            " Name : ${context.read<HomeCubit>().allAcceptedOffers[index].supplierName}",
+                            style:
+                                const TextStyle(fontSize: 14, color: Colors.black),
+                          ),
+                          const Text("    ||    "),
+                          Text(
+                            "Mobile : ${context.read<HomeCubit>().allAcceptedOffers[index].mobile}",
+                            style: const TextStyle(fontSize: 14, color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            " Email : ${context.read<HomeCubit>().allAcceptedOffers[index].email}",
+                            style:
+                                const TextStyle(fontSize: 14, color: Colors.black),
+                          ),
+                          const Text("    ||    "),
+                          Text(
+                            "Address : ${context.read<HomeCubit>().allAcceptedOffers[index].city}",
+                            style: const TextStyle(fontSize: 14, color: Colors.red),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        " Email : ${context.read<HomeCubit>().allAcceptedOffers[index].emial}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
-                      ),
-                      const Text("    ||    "),
-                      Text(
-                        "Address : ${context.read<HomeCubit>().allAcceptedOffers[index].city}",
-                        style: const TextStyle(fontSize: 14, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),

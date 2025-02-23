@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../widget/responsive_text.dart';
+
 class HomePageView extends StatelessWidget {
   const HomePageView({super.key});
   static final List<Widget> _pages = [
@@ -72,6 +74,7 @@ class SideBarWidget extends StatelessWidget {
                         context
                             .read<HomeCubit>()
                             .changeViewonSideBar(index: bar.index);
+                        context.read<HomeCubit>().fetchClientAcceptedOrders();
                         if (bar.index == 3) {
                           context.read<HomeCubit>().fetchClientOrders();
                         } else if (bar.index == 4) {
@@ -90,7 +93,7 @@ class SideBarWidget extends StatelessWidget {
                         }
                       },
                       child: Container(
-                        height: 60.h,
+                        height: 70.h,
                         margin: EdgeInsets.only(bottom: 10.h),
                         padding: EdgeInsets.only(left: 4.w),
                         decoration: BoxDecoration(
@@ -111,9 +114,12 @@ class SideBarWidget extends StatelessWidget {
                               width: 24,
                               color: Colors.white,
                             ),
-                            const VerticalSpacer(space: 12),
-                            Text(
-                              bar.title,
+                            const VerticalSpacer(space: 10),
+                            ResponsiveText(
+                              text: bar.title,
+                              width: 50,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

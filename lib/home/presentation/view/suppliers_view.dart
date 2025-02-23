@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/widgets/image_dialog.dart';
+
 class SuppliersView extends StatelessWidget {
   const SuppliersView({super.key});
 
@@ -34,69 +36,95 @@ class SuppliersView extends StatelessWidget {
                 mainAxisSpacing: 12.h),
             itemCount: context.read<HomeCubit>().suppliers.length,
             itemBuilder: (context, index) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-              margin: EdgeInsets.only(top: 16.h),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+              // margin: EdgeInsets.only(top: 16.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: Colors.blue,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${context.read<HomeCubit>().suppliers[index].companyName} ",
-                        style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                          onTap: () {
-                            context.read<HomeCubit>().deletUser(
-                                id: context
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${context.read<HomeCubit>().suppliers[index].docId} ",
+                      style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${context.read<HomeCubit>().suppliers[index].companyName} ",
+                          style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        HorizontalSpacer(space: 20),
+                        IconButton(
+                            onPressed: () {
+                              ImageDialog(
+                                imageUrl: context
                                     .read<HomeCubit>()
-                                    .suppliers[index]
-                                    .docId);
-                          },
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          ))
-                    ],
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].email,
-                    style: const TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].mobile,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].city,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].bankName,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].iPanNumber,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                  Text(
-                    context.read<HomeCubit>().suppliers[index].taxNumber,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                ],
+                                    .suppliers[index].tradeLicense,
+                                width: 300,  // optional
+                                height: 400, // optional
+                              ).show(context);
+                            },
+                            icon: const Icon(Icons.image)),
+
+
+                        HorizontalSpacer(space: 5),
+                        InkWell(
+                            onTap: () {
+                              context.read<HomeCubit>().deleteSupplier(
+                                  id: context
+                                      .read<HomeCubit>()
+                                      .suppliers[index]
+                                      .docId);
+                            },
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ))
+                      ],
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].email,
+                      style: const TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].mobile,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].city,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].bankName,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].iPanNumber,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    Text(
+                      context.read<HomeCubit>().suppliers[index].taxNumber,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

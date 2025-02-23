@@ -1,6 +1,6 @@
 class OffersModel {
   final String supplierName;
-  final String supplierId;
+  final String supplierDataId;
   final String orderNumber;
   final String offerId;
   final String offerDate;
@@ -10,34 +10,46 @@ class OffersModel {
   final String rate;
   final String mobile;
   final String city;
-  final String emial;
-  OffersModel(
-      {required this.supplierName,
-      required this.supplierId,
-      required this.orderNumber,
-      required this.offerId,
-      required this.offerDate,
-      required this.offerDescription,
-      required this.amount,
-      required this.mobile,
-      required this.city,
-      required this.emial,
-      required this.quantity,
-      required this.rate});
+  final String email;
+  final String deliverDate;
+  final String total;
+  final String vat;
+
+  OffersModel({
+    required this.supplierName,
+    required this.supplierDataId,
+    required this.orderNumber,
+    required this.offerId,
+    required this.offerDate,
+    required this.offerDescription,
+    required this.amount,
+    required this.mobile,
+    required this.city,
+    required this.email,
+    required this.quantity,
+    required this.rate,
+    required this.deliverDate,
+    required this.total,
+    required this.vat
+  });
   factory OffersModel.fromMap(Map<String, dynamic> map) {
     return OffersModel(
-      supplierName: map['supplierName'] ?? "",
-      supplierId: map['supplierId'] ?? "",
-      orderNumber: map['orderNumber'] ?? "",
+      amount: map['amount'] ?? "",
       city: map["city"] ?? "",
+      deliverDate: map["deliverDate"]??"",
+      email: map["email"] ?? "",
       mobile: map["mobile"] ?? "",
-      emial: map["email"] ?? "",
-      offerId: map['offerId'] ?? "",
+      orderNumber: map['orderNumber'] ?? "",
+      quantity: map['quantity'] ?? "",
       offerDate: map['quotationDate'] ?? "",
       offerDescription: map['quotationDescription'] ?? "",
-      amount: map['amount'] ?? "",
-      quantity: map['quantity'] ?? "",
       rate: map['rate'] ?? "",
+      supplierDataId: map['supplierId'] ?? "",
+      supplierName: map['supplierName'] ?? "",
+      total:  map['total'] ?? "",
+      vat: map['vat'] ?? "" ,
+
+      offerId: map['offerId'] ?? "",
     );
   }
 
@@ -45,7 +57,7 @@ class OffersModel {
   Map<String, dynamic> toMap() {
     return {
       'supplierName': supplierName,
-      'supplierId': supplierId,
+      'supplierId': supplierDataId,
       'orderNumber': orderNumber,
       'offerId': offerId,
       'offerDate': offerDate,
@@ -55,4 +67,10 @@ class OffersModel {
       'rate': rate,
     };
   }
+
+
+  String toStr(){
+    return "Description: $offerDescription,\nAmount: $amount, \nRate: $rate, \nQuantity: $quantity \nVat%: $quantity \nQuantity: $quantity";
+  }
+
 }

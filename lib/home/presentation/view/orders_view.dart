@@ -39,124 +39,125 @@ class OrdersView extends StatelessWidget {
             itemCount: context.read<HomeCubit>().allOrders.length,
             itemBuilder: (context, index) => Container(
               padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 16.h),
-              margin: EdgeInsets.only(top: 16.h),
+              // margin: EdgeInsets.only(top: 16.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: Colors.blue,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${context.read<HomeCubit>().allOrders[index].category}\n${context.read<HomeCubit>().allOrders[index].orderType}",
-                        style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          context.read<HomeCubit>().deletSpacificOrder(
-                              collection: "Orders",
-                              id: context
-                                  .read<HomeCubit>()
-                                  .allOrders[index]
-                                  .orderId);
-                        },
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.delete,
-                              color: Colors.red,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 18.0),
+                          child: SizedBox(
+                            width: 100,
+                            child: Text(
+                              "${context.read<HomeCubit>().allOrders[index].category}\n${context.read<HomeCubit>().allOrders[index].orderType}",
+                              style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  overflow: TextOverflow.ellipsis,
+                                  fontWeight: FontWeight.bold),
                             ),
-                            VerticalSpacer(space: 10),
-                            Text(
-                              "Delete",
-                              style: TextStyle(color: Colors.green),
-                            )
-                          ],
+                          ),
                         ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          context.read<HomeCubit>().acceptSpacificOrder(
-                              order:
-                                  context.read<HomeCubit>().allOrders[index]);
-                        },
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.verified_sharp,
-                              color: Colors.green,
-                            ),
-                            VerticalSpacer(space: 10),
-                            Text(
-                              "Accept",
-                              style: TextStyle(color: Colors.green),
-                            )
-                          ],
+                        InkWell(
+                          onTap: () {
+                            context.read<HomeCubit>().deletSpacificOrder(
+                                collection: "Orders",
+                                id: context
+                                    .read<HomeCubit>()
+                                    .allOrders[index]
+                                    .orderId);
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(
+                                Icons.delete,
+                                color: Colors.red,size: 20,
+                              ),
+                              VerticalSpacer(space: 10),
+                              Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.green),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().allOrders[index].details,
-                    style: const TextStyle(fontSize: 14, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().allOrders[index].extea_details,
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      context.read<HomeCubit>().allOrders[index].date,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        InkWell(
+                          onTap: () {
+                            context.read<HomeCubit>().acceptSpacificOrder(
+                                order:
+                                    context.read<HomeCubit>().allOrders[index]);
+                          },
+                          child: const Column(
+                            children: [
+                              Icon(
+                                Icons.verified_sharp,
+                                color: Colors.green,
+                              ),
+                              VerticalSpacer(space: 10),
+                              Text(
+                                "Accept",
+                                style: TextStyle(color: Colors.green),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const VerticalSpacer(space: 12),
-                  const Text(
-                    "Client Information :",
-                    style: TextStyle(fontSize: 16, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 12),
-                  Row(
-                    children: [
-                      Text(
-                        " Name : ${context.read<HomeCubit>().allOrders[index].name}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().allOrders[index].details,
+                      style: const TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().allOrders[index].extea_details,
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        context.read<HomeCubit>().allOrders[index].date,
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
-                      const Text("    ||    "),
-                      Text(
-                        "Mobile : ${context.read<HomeCubit>().allOrders[index].mobile}",
-                        style: const TextStyle(fontSize: 14, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        " Email : ${context.read<HomeCubit>().allOrders[index].email}",
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.black),
-                      ),
-                      const Text("    ||    "),
-                      Text(
-                        "Address : ${context.read<HomeCubit>().allOrders[index].address}",
-                        style: const TextStyle(fontSize: 14, color: Colors.red),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const VerticalSpacer(space: 12),
+                    const Text(
+                      "Client Information :",
+                      style: TextStyle(fontSize: 16, color: Colors.blue),
+                    ),
+                    const VerticalSpacer(space: 12),
+                    Text(
+                      " Name : ${context.read<HomeCubit>().allOrders[index].name}",
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                    // const Text("    ||    "),
+                    Text(
+                      "Mobile : ${context.read<HomeCubit>().allOrders[index].mobile}",
+                      style: const TextStyle(fontSize: 14, color: Colors.red),
+                    ),
+                    Text(
+                      " Email : ${context.read<HomeCubit>().allOrders[index].email}",
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                    // const Text("    ||    "),
+                    Text(
+                      "Address : ${context.read<HomeCubit>().allOrders[index].address}",
+                      style: const TextStyle(fontSize: 14, color: Colors.red),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -8,6 +8,7 @@ import 'package:dash_board/home/model/users_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/fcm_handler.dart';
 import '../../../model/message_modl.dart';
 part 'chat_state.dart';
 
@@ -18,6 +19,7 @@ class ChatCubit extends Cubit<ChatState> {
   final chatTextFieldKey = GlobalKey<FormState>();
   List<MessageprodModel>? allChatMessages;
   late List<UsersModel> allUsers = [];
+  late List<String> suppliersIds = [];
   late List<ChatModel> allChatsInDataBase;
   String? imagepath;
   String userChatId = "";
@@ -86,13 +88,26 @@ class ChatCubit extends Cubit<ChatState> {
           .add(
             message.toMap(),
           );
+
+      // NotificationService.sendNotification(
+      //     userToken:  res.data()?['fcmToken'],
+      //     title: "You Have new messages",
+      //     body:  "We would like to hear from you..",
+      //     data: {
+      //       "date": "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}"
+      //     }
+      // );
+
+
       messageController.clear();
     } catch (e) {
       log(e.toString());
       emit(FetchingMessagesErrorState(error: e.toString()));
     }
   }
-
+  bool isSupplierChatmarker(String docId){
+return true;
+  }
   void getAllChats() async {
     try {
       FirebaseFirestore.instance.settings = const Settings(
@@ -102,14 +117,36 @@ class ChatCubit extends Cubit<ChatState> {
       emit(FetchingAllChatsState());
 
       // Step 1: Fetch all chat document IDs
-      final instance = FirebaseFirestore.instance.collection("Users");
-      final querySnapshot = await instance.get();
-      allUsers = querySnapshot.docs
+      final instanceUsers = FirebaseFirestore.instance.collection("Users");
+      final instanceSuppliers = FirebaseFirestore.instance.collection("Suppliers");
+
+
+      final querySnapshotUsers = await instanceUsers.get();
+      final querySnapshotSuppliers = await instanceSuppliers.get();
+      print(querySnapshotSuppliers.docs.first.id);
+
+      suppliersIds.addAll(querySnapshotSuppliers.docs.map((e) {
+        return e.id;
+      },).toList());
+
+      allUsers = [];
+      allUsers = querySnapshotUsers.docs
           .map((e) => UsersModel.fromMap({
                 ...e.data(), // Spread the existing data
                 'docId': e.id, // Add docId to the data map
+                'isSupplier': false, // Add isSupplier to the data map
               }))
           .toList();
+
+      allUsers.addAll(
+          querySnapshotSuppliers.docs
+              .map((e) => UsersModel.fromMap({
+            ...e.data(), // Spread the existing data
+            'docId': e.id, // Add docId to the data map
+            'isSupplier': true, // Add isSupplier to the data map
+          }))
+              .toList()
+      );
       //   final List<QueryDocumentSnapshot> userSnapshots = userSnapshot.docs
       //       .where((element) => chatIds.contains(element.id))
       //       .toList(); // Check if element.id is in chatIds

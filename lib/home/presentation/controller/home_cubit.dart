@@ -18,7 +18,7 @@ class HomeCubit extends Cubit<HomeState> {
   late List<OffersModel> allOffers;
   late List<OffersModel> allAcceptedOffers;
 
-  late List<AcceptedOrdersModel> allAcceptedOrders;
+  late List<OrdersModel> allAcceptedOrders;
 
   int sideBarIndex = 0;
   void changeViewonSideBar({required int index}) {
@@ -26,8 +26,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(ChangingSideBarState());
   }
 
-  void deletSpacificOffer(
-      {required String id, required String collection}) async {
+  void deletSpacificOffer({required String id, required String collection}) async {
     final instance = FirebaseFirestore.instance.collection(collection);
     await instance.doc(id).delete();
     collection == "quotations"
@@ -55,27 +54,73 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  void acceptSpacificOffer({required OffersModel offer}) async {
-    try {
-      final instance = FirebaseFirestore.instance.collection("accepted_offers");
-      await instance.add({
+  void acceptSpecificOffer({required OffersModel offer}) async {
+    try { // specific
+      final instance = FirebaseFirestore.instance
+          .collection("accepted_offers");
+      final newAcceptedOffer = await instance.add({
         'quotationDescription': offer.offerDescription,
         'quotationDate': offer.offerDate,
         'supplierName': offer.supplierName,
-        'supplierId': offer.supplierId,
+        'supplierId': offer.supplierDataId,
         'rate': offer.rate,
         'quantity': offer.quantity,
         'orderNumber': offer.orderNumber,
         'amount': offer.amount,
-        'email': offer.emial,
+        'email': offer.email,
         'mobile': offer.mobile,
         'city': offer.city
       });
       await FirebaseFirestore.instance
-          .collection("quotation")
+          .collection("quotations")
           .doc(offer.offerId)
           .delete();
       fetchSupplierOffers();
+
+      print('supp id: ${offer.supplierDataId}');
+      final  theSupplier = await FirebaseFirestore.instance
+          .collection('Suppliers').doc(offer.supplierDataId).get();
+      print('supp id: ${theSupplier.id}');
+      print('supp token: ${theSupplier.data()?['fcmToken']}');
+
+      NotificationService.sendNotification(
+          userToken:  theSupplier.data()?['fcmToken'],
+          title: "Congratulation! accepted Offer",
+          body:  "Your offer has been accepted successfully",
+        data: {
+          "date": "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}"
+        }
+      );
+
+
+
+      final userOrder = await FirebaseFirestore.instance
+          .collection('accepted_orders')
+          .doc(offer.orderNumber).get();
+
+      final clientDetails = await FirebaseFirestore.instance
+      .collection('Users')
+      .where('uuid', isEqualTo: userOrder['userId']).get();
+
+
+      print('client id: ${clientDetails.docs.first.id}');
+      print('client token: ${clientDetails.docs.first['fcmToken']}');
+
+      NotificationService.sendNotification(
+          userToken:  clientDetails.docs.first['fcmToken'],
+          title: "New Offer",
+          body:  offer.toStr(),
+          data: {
+            // 'quotationDescription': offer.offerDescription,
+            // 'quotationDate': offer.offerDate,
+            // 'amount': offer.amount,
+            // 'rate': offer.rate,
+            // 'quantity': offer.quantity,
+            'offerSupplierId': offer.supplierDataId,
+            "date": "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}"
+          }
+      );
+
     } catch (e) {
       emit(FetchinSupplierOffersErrorState(error: e.toString()));
     }
@@ -84,7 +129,8 @@ class HomeCubit extends Cubit<HomeState> {
   void fetchSupplierOffers() async {
     try {
       emit(FetchingSupplierOffersState());
-      final instance = FirebaseFirestore.instance.collection("quotations");
+      final instance = FirebaseFirestore.instance
+          .collection("quotations");
       final querySnapshot = await instance.get();
       allOffers = querySnapshot.docs
           .map((e) => OffersModel.fromMap({
@@ -102,8 +148,7 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  void deletSpacificOrder(
-      {required String id, required String collection}) async {
+  Future<void> deletSpacificOrder({required String id, required String collection}) async {
     final instance = FirebaseFirestore.instance.collection(collection);
     await instance.doc(id).delete();
     collection == "Orders" ? fetchClientOrders() : fetchClientAcceptedOrders();
@@ -111,6 +156,10 @@ class HomeCubit extends Cubit<HomeState> {
 
   void acceptSpacificOrder({required OrdersModel order}) async {
     try {
+      final  res = await FirebaseFirestore.instance
+          .collection('Users')
+          .where("uuid",isEqualTo: order.userId).get();
+
       final instance = FirebaseFirestore.instance.collection("accepted_orders");
       await instance.add({
         'details': order.details,
@@ -118,7 +167,7 @@ class HomeCubit extends Cubit<HomeState> {
         'date': order.date,
         'category': order.category,
         'orderType': order.orderType,
-        'userId': order.userId,
+        'userId': res.docs.isNotEmpty? res.docs.first.id:"Missing",
         'orderId': order.orderId,
         'name': order.name,
         'address': order.address,
@@ -130,10 +179,7 @@ class HomeCubit extends Cubit<HomeState> {
           .doc(order.orderId)
           .delete();
       fetchClientOrders();
-      FCMHandler.sendNotification(
-          "fGDlT9IsZk4duMkTF1FDBJ:APA91bHlWJD0Pingyiu9tRdzEd7PL4DD_5UM37IqZzSNooGyM4cCScbMQ66coIsrWy7qfTRPxpegEx-g76OCgZb2MMIKvYy6xP3k2VTzxtbA7ip8qpXlVZk",
-          "Congratulation! accepted Order/Offer",
-          "Your order/offer has been accepted successfully");
+
       emit(AcceptedOrderSuccessfullState());
     } catch (e) {
       AcceptedOrderErrorState();
@@ -164,10 +210,12 @@ class HomeCubit extends Cubit<HomeState> {
   void fetchClientAcceptedOrders() async {
     try {
       emit(FetchingClientAcceptedOrdersState());
-      final instance = FirebaseFirestore.instance.collection("accepted_orders");
+      final instance =
+      FirebaseFirestore.instance.collection("accepted_orders");
       final querySnapshot = await instance.get();
       allAcceptedOrders = querySnapshot.docs
-          .map((e) => AcceptedOrdersModel.fromMap({
+          .map((e) =>
+          OrdersModel.fromMap({
                 ...e.data(), // Spread the existing data
                 'orderId': e.id, // Add docId to the data map
               }))
@@ -185,6 +233,12 @@ class HomeCubit extends Cubit<HomeState> {
     final instance = FirebaseFirestore.instance.collection("Users");
     await instance.doc(id).delete();
     fetchUsers();
+  }
+  void deleteSupplier({required String id}) async {
+    final instance = FirebaseFirestore.instance
+        .collection("Suppliers");
+    await instance.doc(id).delete();
+    fetchSuppliers();
   }
 
   void fetchUsers() async {

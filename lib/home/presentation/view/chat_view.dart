@@ -50,7 +50,16 @@ class ChatView extends StatelessWidget {
                             "${context.read<ChatCubit>().allUsers[index].first_name} ${context.read<ChatCubit>().allUsers[index].last_name}",
                         email: context.read<ChatCubit>().allUsers[index].email,
                         city: context.read<ChatCubit>().allUsers[index].city,
-                        isSupplier: true),
+                        isSupplier:
+                        context.read<ChatCubit>().allUsers[index].isSupplier,
+
+                        // context.read<ChatCubit>().isSupplierChatmarker(
+                        //     context
+                        //         .read<ChatCubit>()
+                        //         .allUsers[index]
+                        //         .docId
+                        // ),
+                    ),
                   );
                 }
                 return ListView.separated(
@@ -159,42 +168,48 @@ class ChatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.6,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                name,
-                style: const TextStyle(
-                    color: Colors.blue,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const VerticalSpacer(space: 6),
+                  Text(
+                    email,
+                    style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w300),
+                  ),
+                ],
               ),
-              const VerticalSpacer(space: 6),
+              const Spacer(),
               Text(
-                email,
+                isSupplier ? "Supplier" : "Client",
                 style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300),
+                    color: Colors.grey, fontSize: 30, fontWeight: FontWeight.w300),
               ),
+              // const Spacer(),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 14.h,
+                color: Colors.grey,
+              )
             ],
           ),
-          const HorizontalSpacer(space: 16),
-          Text(
-            isSupplier ? "Supplier" : "Client",
-            style: const TextStyle(
-                color: Colors.grey, fontSize: 14, fontWeight: FontWeight.w300),
-          ),
-          const Spacer(),
-          Icon(
-            Icons.arrow_forward_ios,
-            size: 14.h,
-            color: Colors.grey,
-          )
-        ],
+        ),
       ),
     );
   }

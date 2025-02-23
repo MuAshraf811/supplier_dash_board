@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dash_board/core/fcm_handler.dart';
 import 'package:dash_board/dash_board.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -22,10 +24,5 @@ void main() async {
       appId: "1:583335541663:web:21bd55f2728bdb97219baa",
     ),
   );
-  await FCMHandler.sendNotification(
-      'fGDlT9IsZk4duMkTF1FDBJ:APA91bHlWJD0Pingyiu9tRdzEd7PL4DD_5UM37IqZzSNooGyM4cCScbMQ66coIsrWy7qfTRPxpegEx-g76OCgZb2MMIKvYy6xP3k2VTzxtbA7ip8qpXlVZk',
-      "Hello",
-      "IN SHAA ALLAH YOU WILL WORK");
-
   runApp(const DashBoard());
 }
