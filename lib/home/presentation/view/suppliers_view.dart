@@ -57,17 +57,17 @@ class SuppliersView extends StatelessWidget {
                           fontWeight: FontWeight.bold),
                     ),
                     const VerticalSpacer(space: 8),
+                    Text(
+                      "${context.read<HomeCubit>().suppliers[index].companyName} ",
+                      style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    VerticalSpacer(space: 10),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "${context.read<HomeCubit>().suppliers[index].companyName} ",
-                          style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        HorizontalSpacer(space: 20),
                         IconButton(
                             onPressed: () {
                               ImageDialog(
@@ -78,9 +78,30 @@ class SuppliersView extends StatelessWidget {
                                 height: 400, // optional
                               ).show(context);
                             },
-                            icon: const Icon(Icons.image)),
+                            icon: const Icon(Icons.image,size: 40,)),
 
 
+                        HorizontalSpacer(space: 5),
+                        InkWell(
+                            onTap: () {
+                              if(context
+                                  .read<HomeCubit>()
+                                  .suppliers[index].approved){
+
+                              }else{
+                                context.read<HomeCubit>().approveSupplier(
+                                    id: context
+                                        .read<HomeCubit>()
+                                        .suppliers[index]
+                                        .docId);
+                              }
+                            },
+                            child: Icon(
+                              context
+                                  .read<HomeCubit>()
+                                  .suppliers[index].approved? Icons.verified :Icons.verified_outlined,
+                              color: Colors.greenAccent,size: 40,
+                            )),
                         HorizontalSpacer(space: 5),
                         InkWell(
                             onTap: () {
@@ -92,36 +113,36 @@ class SuppliersView extends StatelessWidget {
                             },
                             child: const Icon(
                               Icons.delete,
-                              color: Colors.red,
+                              color: Colors.red,size: 40,
                             ))
                       ],
                     ),
                     const VerticalSpacer(space: 8),
                     Text(
                       context.read<HomeCubit>().suppliers[index].email,
-                      style: const TextStyle(fontSize: 15, color: Colors.blue),
+                      style: const TextStyle(fontSize: 20, color: Colors.blue),
                     ),
                     const VerticalSpacer(space: 8),
                     Text(
                       context.read<HomeCubit>().suppliers[index].mobile,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                     const VerticalSpacer(space: 8),
                     Text(
                       context.read<HomeCubit>().suppliers[index].city,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                     Text(
                       context.read<HomeCubit>().suppliers[index].bankName,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                     Text(
                       context.read<HomeCubit>().suppliers[index].iPanNumber,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                     Text(
                       context.read<HomeCubit>().suppliers[index].taxNumber,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                   ],
                 ),

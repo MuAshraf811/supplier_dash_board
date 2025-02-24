@@ -6,6 +6,8 @@ import 'package:dash_board/home/model/offers_model.dart';
 import 'package:dash_board/home/model/orders_model.dart';
 import 'package:dash_board/home/model/supplier_model.dart';
 import 'package:dash_board/home/model/users_model.dart';
+import 'package:dash_board/notifications/data/models/notifications_model.dart';
+import 'package:dash_board/notifications/presentation/cubit/notification_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 part 'home_state.dart';
@@ -83,15 +85,25 @@ class HomeCubit extends Cubit<HomeState> {
       print('supp id: ${theSupplier.id}');
       print('supp token: ${theSupplier.data()?['fcmToken']}');
 
+      String currentDate = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}";
       NotificationService.sendNotification(
           userToken:  theSupplier.data()?['fcmToken'],
           title: "Congratulation! accepted Offer",
           body:  "Your offer has been accepted successfully",
         data: {
-          "date": "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}"
+          "date": currentDate
         }
       );
 
+      NotificationsCubit.addToNotificationHistory(
+          notification: NotificationModel(
+            title: "Congratulation! accepted Offer",
+            body: "Your offer has been accepted successfully",
+            date: currentDate,
+          ),
+          targetDataId: theSupplier.id,
+          isSupplier: true
+      );
 
 
       final userOrder = await FirebaseFirestore.instance
@@ -117,9 +129,25 @@ class HomeCubit extends Cubit<HomeState> {
             // 'rate': offer.rate,
             // 'quantity': offer.quantity,
             'offerSupplierId': offer.supplierDataId,
-            "date": "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}"
+            "offerId": offer.offerId,
+            "orderId": offer.orderNumber,
+            "date": currentDate
           }
       );
+
+      NotificationsCubit.addToNotificationHistory(
+          targetDataId: clientDetails.docs.first.id,
+          notification: NotificationModel(
+            title: "New Offer",
+            body: offer.toStr(),
+            offerSupplierId: offer.supplierDataId,
+            offerId: offer.offerId,
+            orderId: offer.orderNumber,
+            date: currentDate
+          ),
+          isSupplier: false
+      );
+
 
     } catch (e) {
       emit(FetchinSupplierOffersErrorState(error: e.toString()));
@@ -277,5 +305,14 @@ class HomeCubit extends Cubit<HomeState> {
       log(e.toString());
       emit(FetchingAllSuppliersErrorState(error: e.toString()));
     }
+  }
+
+  Future<void> approveSupplier({required String id}) async {
+    final instance = FirebaseFirestore.instance
+        .collection("Suppliers");
+    await instance.doc(id).update({
+      "approved":"TRUE"
+    });
+    fetchSuppliers();
   }
 }

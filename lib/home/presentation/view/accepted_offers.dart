@@ -38,6 +38,7 @@ class AcceptedOffersView extends StatelessWidget {
                 mainAxisSpacing: 12.h),
             itemCount: context.read<HomeCubit>().allAcceptedOffers.length,
             itemBuilder: (context, index) => FittedBox(
+              fit: BoxFit.fitWidth,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 10.h),
                 // margin: EdgeInsets.only(top: 16.h),
@@ -93,12 +94,16 @@ class AcceptedOffersView extends StatelessWidget {
                         ],
                       ),
                       const VerticalSpacer(space: 8),
-                      Text(
-                        "Description: ${context
-                            .read<HomeCubit>()
-                            .allAcceptedOffers[index]
-                            .offerDescription}",
-                        style: const TextStyle(fontSize: 14, color: Colors.black),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*0.25,
+                        child: Text(
+                          "Description: ${context
+                              .read<HomeCubit>()
+                              .allAcceptedOffers[index]
+                              .offerDescription}",
+                          maxLines: 3,
+                          style: const TextStyle(fontSize: 14, color: Colors.black),
+                        ),
                       ),
                       const VerticalSpacer(space: 8),
                       Align(

@@ -8,7 +8,7 @@ class SupplierModel {
   final String tradeLicense;
   final String iPanNumber;
   final String docId;
-
+  final bool approved;
   SupplierModel({
     required this.companyName,
     required this.email,
@@ -19,6 +19,7 @@ class SupplierModel {
     required this.taxNumber,
     required this.tradeLicense,
     required this.iPanNumber,
+    required this.approved
   });
 
   factory SupplierModel.fromMap(Map<String, dynamic> map) {
@@ -32,6 +33,7 @@ class SupplierModel {
       taxNumber: map['taxNumber'] ?? '',
       tradeLicense: map['imagePath'] ?? '',
       iPanNumber: map['ipanNumber'] ?? '',
+      approved: map['approved'] != null ?(map['approved'] == "TRUE"):false,
     );
   }
 

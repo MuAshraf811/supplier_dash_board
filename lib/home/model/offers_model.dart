@@ -70,7 +70,7 @@ class OffersModel {
 
 
   String toStr(){
-    return "Description: $offerDescription,\nAmount: $amount, \nRate: $rate, \nQuantity: $quantity \nVat%: $quantity \nQuantity: $quantity";
+    return "Description: $offerDescription,\nAmount: $amount, \nRate: $rate, \nQuantity: $quantity \nVat%: $vat \nTotal: $total\nDeliver Date: $deliverDate";
   }
 
 }
