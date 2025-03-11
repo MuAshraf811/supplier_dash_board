@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:cloud_functions/cloud_functions.dart';
 
 class NotificationService {
 
-  static const String functionUrl = 'https://sendnotification-3nimspdhaq-uc.a.run.app';  // You'll get this after deploying
+  static const String functionUrl = 'https://sendnotification-3nimspdhaq-uc.a.run.app';
 
   static Future<void> sendNotification({
     required String userToken,

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dash_board/core/fcm_handler.dart';
 import 'package:dash_board/home/model/accepted_orders_model.dart';
+import 'package:dash_board/home/model/client_approvals.dart';
 import 'package:dash_board/home/model/offers_model.dart';
 import 'package:dash_board/home/model/orders_model.dart';
 import 'package:dash_board/home/model/supplier_model.dart';
@@ -19,15 +21,62 @@ class HomeCubit extends Cubit<HomeState> {
   late List<OrdersModel> allOrders;
   late List<OffersModel> allOffers;
   late List<OffersModel> allAcceptedOffers;
+  late List<ClientApprovalsModel> allClientApprovals;
 
   late List<OrdersModel> allAcceptedOrders;
+
+  static List<NotificationModel> adminNotifications = [];
 
   int sideBarIndex = 0;
   void changeViewonSideBar({required int index}) {
     sideBarIndex = index;
     emit(ChangingSideBarState());
   }
+  Future<void> loadNotifications() async {
+    try {
+      // NotificationsCubit().clearNotifications();
+      emit(FetchingNotificationState());
 
+      String collectionName = 'admin_notifications';
+      final instance = FirebaseFirestore.instance.collection(collectionName);
+
+      print('before fetch');
+      final res = await instance
+          .get();
+      if(res.docs.first.data()['notifications_history'] != null) {
+        String currentUserNotifications = res.docs.first.data()['notifications_history'];
+        print(res.docs.first.data()['notifications_history']);
+        if (currentUserNotifications.isNotEmpty) {
+          final dynamic jsonData = jsonDecode(currentUserNotifications);
+          // Handle single notification case
+          if (jsonData is Map<String, dynamic>) {
+            // If it's a single notification
+            adminNotifications = [NotificationModel.fromJson(jsonData)];
+          } else if (jsonData is List) {
+            // If it's a list of notifications
+            adminNotifications = [];
+            adminNotifications = jsonData
+                .map((item) =>
+                NotificationModel.fromJson(item as Map<String, dynamic>))
+                .toList();
+          }
+        } else {
+          adminNotifications = [];
+          emit(FetchingNotificationErrorState('No Notification found'));
+          return;
+        }
+      } else {
+        emit(FetchingNotificationErrorState('No Notification found'));
+        return;
+      }
+      emit(FetchingNotificationSuccessState());
+      return;
+    } catch (e) {
+      emit(FetchingNotificationErrorState(
+          'Failed to load notifications: ${e.toString()}'));
+      rethrow;
+    }
+  }
   void deletSpacificOffer({required String id, required String collection}) async {
     final instance = FirebaseFirestore.instance.collection(collection);
     await instance.doc(id).delete();
@@ -51,11 +100,35 @@ class HomeCubit extends Cubit<HomeState> {
       emit(FetchingSupplierAcceptedOffersSuccessState());
     } catch (e) {
       log("**************************");
+
       log(e.toString());
       emit(FetchingSupplierAcceptedOffersErrorState(error: e.toString()));
     }
   }
-
+  void fetchClientApprovals() async {
+    try {
+      emit(FetchingClientApprovalsState());
+      final instance = FirebaseFirestore.instance.collection("client_approvals");
+      final querySnapshot = await instance.get();
+      allClientApprovals = querySnapshot.docs
+          .map((e) {
+            return ClientApprovalsModel.fromMap({
+        ...e.data(),
+        'offerId': e.id,
+        // 'clientEmail': e.data()['clientEmail'],
+        // 'supplierName' : e.data()['supplierName']
+      });
+          })
+          .toList();
+        print(allClientApprovals.length);
+      emit(FetchingClientApprovalsSuccessState());
+    } catch (e) {
+      log("**************************");
+      log(e.toString());
+      allClientApprovals = [];
+      emit(FetchingClientApprovalsErrorState(error: e.toString()));
+    }
+  }
   void acceptSpecificOffer({required OffersModel offer}) async {
     try { // specific
       final instance = FirebaseFirestore.instance
@@ -85,21 +158,22 @@ class HomeCubit extends Cubit<HomeState> {
       print('supp id: ${theSupplier.id}');
       print('supp token: ${theSupplier.data()?['fcmToken']}');
 
-      String currentDate = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}";
+      // String currentDate = "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} at: ${DateTime.now().hour}:${DateTime.now().minute}";
       NotificationService.sendNotification(
           userToken:  theSupplier.data()?['fcmToken'],
           title: "Congratulation! accepted Offer",
           body:  "Your offer has been accepted successfully",
         data: {
-          "date": currentDate
+          "date": DateTime.now().toString()
         }
       );
 
       NotificationsCubit.addToNotificationHistory(
           notification: NotificationModel(
+            id: '0',
             title: "Congratulation! accepted Offer",
             body: "Your offer has been accepted successfully",
-            date: currentDate,
+            date: DateTime.now(),
           ),
           targetDataId: theSupplier.id,
           isSupplier: true
@@ -110,16 +184,18 @@ class HomeCubit extends Cubit<HomeState> {
           .collection('accepted_orders')
           .doc(offer.orderNumber).get();
 
+      print('user order');
+      print(userOrder.id);
       final clientDetails = await FirebaseFirestore.instance
       .collection('Users')
-      .where('uuid', isEqualTo: userOrder['userId']).get();
+      .doc(userOrder['userId']).get();
 
 
-      print('client id: ${clientDetails.docs.first.id}');
-      print('client token: ${clientDetails.docs.first['fcmToken']}');
+      print('client id: ${clientDetails.id}');
+      print('client token: ${clientDetails.data()!['fcmToken']}');
 
       NotificationService.sendNotification(
-          userToken:  clientDetails.docs.first['fcmToken'],
+          userToken:  clientDetails.data()!['fcmToken'],
           title: "New Offer",
           body:  offer.toStr(),
           data: {
@@ -131,19 +207,20 @@ class HomeCubit extends Cubit<HomeState> {
             'offerSupplierId': offer.supplierDataId,
             "offerId": offer.offerId,
             "orderId": offer.orderNumber,
-            "date": currentDate
+            "date": DateTime.now().toString()
           }
       );
 
       NotificationsCubit.addToNotificationHistory(
-          targetDataId: clientDetails.docs.first.id,
+          targetDataId: clientDetails.id,
           notification: NotificationModel(
+            id: '0',
             title: "New Offer",
             body: offer.toStr(),
             offerSupplierId: offer.supplierDataId,
             offerId: offer.offerId,
             orderId: offer.orderNumber,
-            date: currentDate
+            date: DateTime.now()
           ),
           isSupplier: false
       );

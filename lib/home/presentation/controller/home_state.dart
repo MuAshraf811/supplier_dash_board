@@ -70,3 +70,20 @@ final class FetchingSupplierAcceptedOffersErrorState extends HomeState {
 
   FetchingSupplierAcceptedOffersErrorState({required this.error});
 }
+
+final class FetchingClientApprovalsState extends HomeState {}
+
+final class FetchingClientApprovalsSuccessState extends HomeState {}
+
+final class FetchingClientApprovalsErrorState extends HomeState {
+  final String error;
+
+  FetchingClientApprovalsErrorState({required this.error});
+}
+final class FetchingNotificationState extends HomeState{}
+final class FetchingNotificationSuccessState extends HomeState{}
+final class EmptyNotificationsState extends HomeState{}
+class FetchingNotificationErrorState extends HomeState {
+  final String error;
+  FetchingNotificationErrorState(this.error);
+}

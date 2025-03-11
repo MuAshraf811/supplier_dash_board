@@ -50,6 +50,10 @@ class OrdersView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      context.read<HomeCubit>().allOrders[index].orderId,
+                      style: const TextStyle(fontSize: 18, color: Colors.blue),
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -80,7 +84,7 @@ class OrdersView extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.delete,
-                                color: Colors.red,size: 20,
+                                color: Colors.red,size: 18,
                               ),
                               VerticalSpacer(space: 10),
                               Text(

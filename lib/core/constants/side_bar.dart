@@ -18,5 +18,7 @@ class SideBar {
     SideBar(title: "Accepted Orders", path: AssetsConstants.client, index: 4),
     SideBar(title: "Offers", path: AssetsConstants.supplier, index: 5),
     SideBar(title: "Accepted Offers", path: AssetsConstants.supplier, index: 6),
+    SideBar(title: "Notifications", path: '', index: 7),
+    SideBar(title: "Clients approved", path: AssetsConstants.supplier, index: 8),
   ];
 }

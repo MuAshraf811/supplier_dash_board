@@ -1,10 +1,13 @@
 import 'dart:developer';
 
-import 'package:dash_board/core/fcm_handler.dart';
+// import 'package:dash_board/core/fcm_handler.dart';
+import 'package:dash_board/core/service_locator.dart';
 import 'package:dash_board/dash_board.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'core/notification_service.dart';
 // Required for registering the service worker on web.
 
 void main() async {
@@ -24,5 +27,6 @@ void main() async {
       appId: "1:583335541663:web:21bd55f2728bdb97219baa",
     ),
   );
+  ServiceLocator.setObjects();
   runApp(const DashBoard());
 }

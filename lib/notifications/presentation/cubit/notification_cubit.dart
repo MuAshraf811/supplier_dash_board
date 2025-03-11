@@ -10,9 +10,8 @@ class NotificationsCubit extends Cubit<NotificationStates> {
   NotificationsCubit() : super(NotificationInitial());
   static NotificationsCubit get(context) => BlocProvider.of(context);
 
-  static List<NotificationModel> allNotifications = [];
+  static List<NotificationModel> userNotifications = [];
 
-  // TODO will have a list of notifi model and proccess it below
   static Future<void> addToNotificationHistory(
       {required NotificationModel notification,
       required String targetDataId,
@@ -33,29 +32,43 @@ class NotificationsCubit extends Cubit<NotificationStates> {
         // Handle single notification case
         if (jsonData is Map<String, dynamic>) {
           // If it's a single notification
-          allNotifications = [NotificationModel.fromJson(jsonData)];
+          userNotifications = [NotificationModel.fromJson(jsonData)];
         } else if (jsonData is List) {
           // If it's a list of notifications
-          allNotifications = jsonData
+          userNotifications = jsonData
               .map((item) =>
                   NotificationModel.fromJson(item as Map<String, dynamic>))
               .toList();
         }
       } else {
-        allNotifications = [];
+        userNotifications = [];
       }
     }
 
     // add new notification to the list
-    allNotifications.add(notification);
+    userNotifications.add(notification);
 
     // convert list back to json encodded string
     final List<Map<String, dynamic>> notificationsJson =
-        allNotifications.map((notification) => notification.toJson()).toList();
+        userNotifications.map((notification) => notification.toJson()).toList();
 
+    print('target id: $targetDataId');
     // update the notificationHistory in the firestore for the required user or supplier
     await instance
         .doc(targetDataId)
-        .update({'notificationHistory': jsonEncode(notificationsJson)});
+        .update({'notificationHistory': jsonEncode(convertNotificationsForJson(userNotifications))});
   }
+  static List<Map<String, dynamic>> convertNotificationsForJson(List<NotificationModel> notifications) {
+    return notifications.map((notification) {
+      Map<String, dynamic> notificationMap = notification.toJson(); // Convert to basic map
+
+      // Handle Timestamp specifically
+      if (notificationMap['data'] != null && notificationMap['data']['date'] is Timestamp) {
+        notificationMap['data']['date'] = notificationMap['data']['date'].toDate().toString();
+      }
+
+      return notificationMap;
+    }).toList();
+  }
+
 }
