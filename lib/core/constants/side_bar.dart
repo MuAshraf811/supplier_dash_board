@@ -9,7 +9,16 @@ class SideBar {
 
   static List<SideBar> bars = [
     SideBar(title: "Users", path: AssetsConstants.users, index: 0),
-    SideBar(title: "Orders", path: AssetsConstants.client, index: 1),
-    SideBar(title: "Offers", path: AssetsConstants.supplier, index: 2),
+    SideBar(title: "Suppliers", path: AssetsConstants.users, index: 1),
+    SideBar(
+        title: "Chat",
+        path: "assets/chat-round-dots-svgrepo-com.svg",
+        index: 2),
+    SideBar(title: "Orders", path: AssetsConstants.client, index: 3),
+    SideBar(title: "Accepted Orders", path: AssetsConstants.client, index: 4),
+    SideBar(title: "Offers", path: AssetsConstants.supplier, index: 5),
+    SideBar(title: "Accepted Offers", path: AssetsConstants.supplier, index: 6),
+    SideBar(title: "Notifications", path: '', index: 7),
+    SideBar(title: "Clients approved", path: AssetsConstants.supplier, index: 8),
   ];
 }

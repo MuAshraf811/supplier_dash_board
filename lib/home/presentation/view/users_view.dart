@@ -27,59 +27,75 @@ class UsersView extends StatelessWidget {
         }
         return Expanded(
           child: GridView.builder(
-            gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 1.8/ 1, 
-              crossAxisSpacing: 12.h, 
-              mainAxisSpacing: 12.h
-            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1.7 / 0.8,
+                crossAxisSpacing: 12.h,
+                mainAxisSpacing: 12.h),
             itemCount: context.read<HomeCubit>().users.length,
-            itemBuilder: (context, index) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h), 
-              margin: EdgeInsets.only(top: 16.h),
+            itemBuilder: (context, index) =>
+                Container(
+
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+              // margin: EdgeInsets.only(top: 16.h),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: Colors.blue,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${context.read<HomeCubit>().users[index].first_name} ${context.read<HomeCubit>().users[index].last_name}",
-                        style:
-                            const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                          onTap: () { 
-                            context.read<HomeCubit>().deletUser(id: context.read<HomeCubit>().users[index].docId);
-                          },
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.red,
-                          ))
-                    ],
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().users[index].email,
-                    style: const TextStyle(fontSize: 15, color: Colors.blue),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().users[index].mobile_number,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                  const VerticalSpacer(space: 8),
-                  Text(
-                    context.read<HomeCubit>().users[index].city,
-                    style: const TextStyle(fontSize: 15, color: Colors.black),
-                  ),
-                ],
+
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${context.read<HomeCubit>().users[index].first_name} ${context.read<HomeCubit>().users[index].last_name}",
+                          style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        InkWell(
+                            onTap: () {
+                              context.read<HomeCubit>().deletUser(
+                                  id: context
+                                      .read<HomeCubit>()
+                                      .users[index]
+                                      .docId);
+                            },
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.red,
+                            ))
+                      ],
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      "Id: ${context.read<HomeCubit>().users[index].docId}",
+                      style: const TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().users[index].email,
+                      style: const TextStyle(fontSize: 15, color: Colors.blue),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().users[index].mobile_number,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    const VerticalSpacer(space: 8),
+                    Text(
+                      context.read<HomeCubit>().users[index].city,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
